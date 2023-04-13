@@ -20,7 +20,7 @@ import androidx.compose.ui.text.withStyle
  */
 
 @Composable
-fun testSpan(ctx: Context) {
+fun TestSpan(ctx: Context) {
     val str1 = "勾选即表示同意"
     val str2 = "《隐私政策》"
     val str3 = "《隐私信息使用说明》"

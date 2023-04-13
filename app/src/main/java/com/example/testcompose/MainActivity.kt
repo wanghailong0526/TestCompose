@@ -2,15 +2,11 @@ package com.example.testcompose
 
 import android.content.Context
 import android.os.Bundle
-import android.service.autofill.OnClickAction
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,13 +25,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.testcompose.R.drawable
-import com.example.testcompose.ui.testSpan
+import com.example.testcompose.ui.TestButton
+import com.example.testcompose.ui.TestColumn
+import com.example.testcompose.ui.TestSpan
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Column() {
+            val scrollState = rememberScrollState(0)
+            Column(Modifier.verticalScroll(scrollState).fillMaxSize()) {
 
                 Greeting("Android")
                 //Image 显示本地图片 使用 painterResource(id)
@@ -46,8 +45,12 @@ class MainActivity : ComponentActivity() {
                     contentDescription = "Icon",
                 )
 
-                testSpanStyle( ctx = this@MainActivity)
-                testSpan(ctx = this@MainActivity)
+                TestSpanStyle( ctx = this@MainActivity)
+                TestSpan(ctx = this@MainActivity)
+                TestColumn()
+                TestButton()
+
+
 
 
                 //lazycolum 直接生成列表
@@ -102,7 +105,7 @@ fun Greeting(text: String) {
 }
 
 @Composable
-fun testSpanStyle( ctx: Context) {
+fun TestSpanStyle(ctx: Context) {
 
     val annotatedString = buildAnnotatedString {
 
@@ -186,6 +189,9 @@ fun testSpanStyle( ctx: Context) {
         }
     )
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable
