@@ -9,7 +9,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -23,18 +23,35 @@ import androidx.compose.ui.text.style.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import coil.compose.AsyncImage
 import com.example.testcompose.R.drawable
 import com.example.testcompose.ui.TestButton
 import com.example.testcompose.ui.TestColumn
+import com.example.testcompose.ui.TestCompositionLocal
+import com.example.testcompose.ui.TestDerivedStateOf
+import com.example.testcompose.ui.TestDerivedStateOf2
+import com.example.testcompose.ui.TestDerivedStateOf3
+import com.example.testcompose.ui.TestDerivedStateOf4
+import com.example.testcompose.ui.TestMutableStateListOf
+import com.example.testcompose.ui.TestMutableStateMapOf
 import com.example.testcompose.ui.TestSpan
+import com.example.testcompose.ui.TestTextField
+import com.example.testcompose.ui.animate.TestAnimateDpAsState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val scrollState = rememberScrollState(0)
-            Column(Modifier.verticalScroll(scrollState).fillMaxSize()) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
 
                 Greeting("Android")
                 //Image 显示本地图片 使用 painterResource(id)
@@ -45,46 +62,64 @@ class MainActivity : ComponentActivity() {
                     contentDescription = "Icon",
                 )
 
-                TestSpanStyle( ctx = this@MainActivity)
                 TestSpan(ctx = this@MainActivity)
                 TestColumn()
                 TestButton()
+                TestTextField()
 
+                //mutablestateof  下面的方式不会更新 Text 内容为 "王海龙",
+                //因为重组时 val name = mutableStateOf("whl") 反复执行，生成多个 name
+                //导致老的 name 值更新后，不影响新的 name 值
+                /*                val name = mutableStateOf("whl")
+                                Text(name.value)
 
+                                lifecycleScope.launch {
+                                    delay(3000)
+                                    name.value = "王海龙"
+                                }*/
 
+                //mutableStateOf 正确用法，使用 remember
+                var name by remember { mutableStateOf("whl") }
+                Text(name)
 
-                //lazycolum 直接生成列表
-//            LazyColumn {
-//                items(names/*数组*/) { name ->
-//                    Text(name)
-//                }
-//            }
-                //lazyColumn 生成特定的 viewType 使用 item
-//            LazyColumn {
-//                item {
-//                    AsyncImage(
-//                        model = "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png",
-//                        contentDescription = "coil Icon"
-//                    )
-//                }
-//                items(names){ name ->
-//                    Text(text = name, /*fontfontSize = 20.sp,*/ style = TextStyle(fontSize = 20.sp))
-//                }
-//            }
+                lifecycleScope.launch {
+                    delay(3000)
+                    name = "王海龙"
+                }
+                ShowMsg(value = "1234")//Text 显示 4
+                ShowMsg(value = "12345")//Text 显示 5
+                ShowMsg(value = "123456")//Text 显示 6
 
-                //给需要滑动的组件添加 Modifier.verticalScroll  Modifier.hori
-//            val scrollState = rememberScrollState(0)
-//            Column(Modifier.verticalScroll(scrollState).fillMaxSize()) {
-//                Text(
-//                    "Editor picks".uppercase(),
-//                    modifier = Modifier.padding(8.dp)
-//                )
-//            }
-//            Column(modifier = Modifier.horizontalScroll(scrollState)) {}
+                TestMutableStateListOf()
+                TestMutableStateMapOf()
+                TestDerivedStateOf()
+                TestDerivedStateOf2()
+                TestDerivedStateOf3()
+
+                var names = remember {
+                    mutableStateListOf("whl", "android", "compose")
+                }
+                TestDerivedStateOf4(names = names) {
+                    names.add("java")
+                }
+
+                TestCompositionLocal()//界面显示 "默认"
+                CompositionLocalProvider(LocalName provides "whl") {
+                    TestCompositionLocal()//界面显示 "whl"
+                }
+
+                TestAnimateDpAsState()
 
             }
         }
     }
+}
+
+//只有当 value 参数改变时才会更新 Text 的值
+@Composable
+fun ShowMsg(value: String) {
+    val length = remember(value) { value.length }
+    Text("长度是${length}")
 }
 
 @Composable
@@ -104,97 +139,15 @@ fun Greeting(text: String) {
     )
 }
 
-@Composable
-fun TestSpanStyle(ctx: Context) {
-
-    val annotatedString = buildAnnotatedString {
-
-        append("勾选即代表同意")
-
-
-        pushStringAnnotation("隐私政策", "隐私政策")
-        // 使用白色背景，红色字体，18sp，Monospace字体来绘制"Hello " (注意后面有个空格)
-        withStyle(
-            style = SpanStyle(
-                color = Color.Red,
-                background = Color.White,
-                fontSize = 18.sp,
-                fontFamily = FontFamily.Monospace,
-
-                )
-        ) {
-            append(" 隐私政策 ")
-        }
-        pop()
-        // 正常绘制"World"
-        append("World ")
-
-        // 使用黄色背景，绿色字体，18sp，Serif字体，W900粗体来绘制"Click"
-        withStyle(
-            style = SpanStyle(
-                color = Color.Green,
-                background = Color.Yellow,
-                fontSize = 30.sp,
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.W900
-            )
-        ) {
-            append("Click")
-        }
-        // 正常绘制" Me" (注意前面有个空格)
-        append(" Me")
-
-        pushStringAnnotation("我们是中国人", "我们是中国人")
-        // 添加阴影及几何处理
-        withStyle(
-            style = SpanStyle(
-                color = Color.Yellow,
-                background = Color.White,
-                baselineShift = BaselineShift(1.0f), // 向BaseLine上偏移10
-                textGeometricTransform = TextGeometricTransform(
-                    scaleX = 2.0F,
-                    skewX = 0.5F
-                ), // 水平缩放2.0，并且倾斜0.5
-                shadow = Shadow(
-                    color = Color.Blue,
-                    offset = Offset(x = 1.0f, y = 1.0f),
-                    blurRadius = 10.0f
-                ) // 添加音阴影和模糊处理
-            )
-        ) {
-            append(" 我们是中国人")
-        }
-
-        pop()
-    }
-
-    ClickableText(
-        text = annotatedString,
-        onClick = { clickIdx ->
-            annotatedString.getStringAnnotations(
-                tag = "隐私政策",
-                start = clickIdx,
-                end = clickIdx
-            ).firstOrNull()?.let {
-                Toast.makeText(ctx, it.item, Toast.LENGTH_SHORT).show()
-            }
-
-            annotatedString.getStringAnnotations(
-                tag = "我们是中国人",
-                start = clickIdx,
-                end = clickIdx
-            ).firstOrNull()?.let {
-                Toast.makeText(ctx, it.item, Toast.LENGTH_SHORT).show()
-            }
-        }
-    )
-}
-
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     Greeting("Android")
 }
+
+class User(name: String) {
+    //第一个 name 是属性，第二个 name 是上面传递的参数
+    var name by mutableStateOf(name)
+}
+
+val LocalName = compositionLocalOf { "默认" }
