@@ -273,4 +273,32 @@ compose 函数传参数就是 无状态的，因为状态在外部，不传参�
             96.dp at 450 with LinearEasing//不写默认的速度曲线
         })
        ```
-        
+    6. SpringSpec
+        1. 弹簧动画
+        2. 构造函数参数
+            1. dampingRatio: Float = Spring.DampingRatioNoBouncy, 阻尼比，弹簧阻力是多大？默认值 1
+               一点都不弹，值越大动画越慢
+            2. stiffness: Float = Spring.StiffnessMedium, 刚度，(硬度)就是把弹簧拉开后，它有多想变回去,刚度越强越想变回去
+            3. visibilityThreshold: T? = null 可视阈值 弹簧震动过程中，距离弹簧停下来的那个点达到这个值弹簧就停下来
+               ```kotlin
+               // anim.animateTo(size, spring(0.1f, Spring.StiffnessHigh, 5.dp))
+               //2000.dp 是初始速度，下面这个动画是弹簧动画后，回来控件原来大小
+               anim.animateTo(48.dp, spring(0.1f, Spring.StiffnessHigh), 2000.dp)
+               ```
+    7. RepeatableSpec
+       1.重复执行动画 SpringSpec 不能重复 KeyframesSpec SnapSpec TweenSpec 这三个可以重复
+       2.构造函数参数
+        1. iterations: Int, 重复次数
+        2. animation: DurationBasedAnimationSpec<T>, 动画
+        3. repeatMode: RepeatMode = RepeatMode.Restart, 重复模式
+            1. RepeatMode.Restart_重新播放
+            2. RepeatMode.Reverse_倒放
+        4. initialStartOffset: StartOffset = StartOffset(0) 偏移时间 单位毫秒
+            1. StartOffsetType.Delay 延时动画的开始执行时间
+            2. StartOffsetType.FastForward 快进 快进的指定的时间点
+        5. InfiniteRepeatableSpec 无限循环的动画 当动画所在协程退出时，动画则退出
+        ```kotlin
+        anim.animateTo(size, epeatable(3, tween(), RepeatMode.Reverse, StartOffset(1000, StartOffsetType.FastForward)))
+        anim.animateTo(infiniteRepeatable( tween(), RepeatMode.Reverse, StartOffset(1000, StartOffsetType.FastForward)))
+        ```
+       
