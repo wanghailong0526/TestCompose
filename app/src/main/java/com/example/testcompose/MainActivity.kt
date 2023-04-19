@@ -37,7 +37,9 @@ import com.example.testcompose.ui.TestMutableStateListOf
 import com.example.testcompose.ui.TestMutableStateMapOf
 import com.example.testcompose.ui.TestSpan
 import com.example.testcompose.ui.TestTextField
+import com.example.testcompose.ui.animate.TestAnimatable
 import com.example.testcompose.ui.animate.TestAnimateDpAsState
+import com.example.testcompose.ui.animate.TestAnimtable2
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -53,62 +55,84 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(scrollState)
             ) {
 
-                Greeting("Android")
-                //Image 显示本地图片 使用 painterResource(id)
-                Image(painterResource(drawable.ic_launcher_background), "Icon")
-                //Image 显示网络图片使用 coil 库 加载图片
-                AsyncImage(
-                    model = "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png",
-                    contentDescription = "Icon",
-                )
+                /**
+                 * Image
+                 */
+//                //Image 显示本地图片 使用 painterResource(id)
+//                Image(painterResource(drawable.ic_launcher_background), "Icon")
+//                //Image 显示网络图片使用 coil 库 加载图片
+//                AsyncImage(
+//                    model = "https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png",
+//                    contentDescription = "Icon",
+//                )
 
-                TestSpan(ctx = this@MainActivity)
-                TestColumn()
-                TestButton()
-                TestTextField()
+                /**
+                 *  Text 和其 span
+                 */
+//                Greeting("Android")
+//                TestSpan(ctx = this@MainActivity)
 
-                //mutablestateof  下面的方式不会更新 Text 内容为 "王海龙",
-                //因为重组时 val name = mutableStateOf("whl") 反复执行，生成多个 name
-                //导致老的 name 值更新后，不影响新的 name 值
-                /*                val name = mutableStateOf("whl")
-                                Text(name.value)
+                /**
+                 *  Column
+                 */
+//                TestColumn()
 
-                                lifecycleScope.launch {
-                                    delay(3000)
-                                    name.value = "王海龙"
-                                }*/
+                /**
+                 * Button
+                 */
+//                TestButton()
 
-                //mutableStateOf 正确用法，使用 remember
-                var name by remember { mutableStateOf("whl") }
-                Text(name)
+                /**
+                 * TextField
+                 */
+//                TestTextField()
 
-                lifecycleScope.launch {
-                    delay(3000)
-                    name = "王海龙"
-                }
-                ShowMsg(value = "1234")//Text 显示 4
-                ShowMsg(value = "12345")//Text 显示 5
-                ShowMsg(value = "123456")//Text 显示 6
+                /**
+                 * mutableStateOf 正确用法，使用 remember
+                 */
+//                var name by remember { mutableStateOf("whl") }
+//                Text(name)
+//
+//                lifecycleScope.launch {
+//                    delay(3000)
+//                    name = "王海龙"
+//                }
 
-                TestMutableStateListOf()
-                TestMutableStateMapOf()
-                TestDerivedStateOf()
-                TestDerivedStateOf2()
-                TestDerivedStateOf3()
+                /**
+                 * remember  mutablestateXxxOf
+                 */
+//                ShowMsg(value = "1234")//Text 显示 4
+//                ShowMsg(value = "12345")//Text 显示 5
+//                ShowMsg(value = "123456")//Text 显示 6
+//
+//                TestMutableStateListOf()
+//                TestMutableStateMapOf()
 
-                var names = remember {
-                    mutableStateListOf("whl", "android", "compose")
-                }
-                TestDerivedStateOf4(names = names) {
-                    names.add("java")
-                }
+                /**
+                 * DerivedStateOf
+                 */
+//                TestDerivedStateOf()
+//                TestDerivedStateOf2()
+//                TestDerivedStateOf3()
+//
+//                var names = remember {
+//                    mutableStateListOf("whl", "android", "compose")
+//                }
+//                TestDerivedStateOf4(names = names) {
+//                    names.add("java")
+//                }
+//
+//                TestCompositionLocal()//界面显示 "默认"
+//                CompositionLocalProvider(LocalName provides "whl") {
+//                    TestCompositionLocal()//界面显示 "whl"
+//                }
 
-                TestCompositionLocal()//界面显示 "默认"
-                CompositionLocalProvider(LocalName provides "whl") {
-                    TestCompositionLocal()//界面显示 "whl"
-                }
-
+                /**
+                 * 动画
+                 */
                 TestAnimateDpAsState()
+                TestAnimatable()
+                TestAnimtable2()
 
             }
         }

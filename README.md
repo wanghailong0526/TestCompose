@@ -104,7 +104,7 @@ Modifier
 
 1. 使用
     1. var name by mutableStateOf("")
-       2.作用
+2. 作用
     1. 监听变量的变化，重组时刷新界面
 
 # remember 函数起到缓存作用，多次调用只执行一次，如果值不改变就使用缓存的值
@@ -197,14 +197,14 @@ compose 函数传参数就是 无状态的，因为状态在外部，不传参�
 4. 注意提供默认值，如果函数内需要的参数没有被 compositionLocal / staticCompositionLocal
    包起来,会出现没有值可以使用的情况
 
-# 动画
+# 动画  默认执行时间 300 毫秒 速度曲线是通过 三阶贝塞尔曲线实现
 
 1. AnimateXxxAsStateOf 状态转移型动画
     1. 代码如下：
 
-```kotlin
-@Composable
-fun TestAnimateDpAsState() {
+    ```kotlin
+    @Composable
+    fun TestAnimateDpAsState() {
     var big by remember { mutableStateOf(false) }
     val size by animateDpAsState(targetValue = if (big) 96.dp else 48.dp)
 
@@ -213,5 +213,64 @@ fun TestAnimateDpAsState() {
             .size(size)
             .background(Color.Green)
             .clickable { big = !big })
-}
-```
+    }
+    ```
+
+2. Animatable 流程定制型动画
+    1. Animatable 构造函数初始值为 float 类型,如果需要其它类型,使用 TwoWayConverter
+       转换,就是将其它类型转换为 float 类型; Dp.VectorConverter 提供了 从 dp 转换为 float 的算法，我们直接使用
+        1. 代码
+             ```kotlin
+             val anim = remember { Animatable(8.dp, Dp.VectorConverter) }
+             ```
+    2. 执行动画
+        1. 动画在协程中执行的 LaunchedEffect(Key,Key1,Key2...) 可以有多个 Key,作用是,当 Key 改变时，重组界面
+        2. 代码
+             ```kotlin
+             var big by remember { mutableStateOf(false) }
+             val size = remember(big) { if (big) 96.dp else 48.dp }
+             val anim = remember { Animatable(size, Dp.VectorConverter) }
+             LaunchedEffect(big) {
+                  anim.animateTo(size)
+             }
+            Box(modifier = Modifier
+                .size(anim.value)
+                .background(Color.Blue)
+                .clickable { big = !big })//通过点击改变 big 的值
+             ```
+    3. TweenSpec 补间动画 动画执行过程的控制 anim.animateTo(size , TweenSpec(参数)) 补间动画
+        1. TweenSpec(easing = LinearEasing)          匀速
+        2. TweenSpec(easing = FastOutLinearInEasing) 全程加速
+        3. TweenSpec(easing = FastOutSlowInEasing)   先加速后减速动画 (默认的速度曲线)
+        4. TweenSpec(easing = LinearOutSlowInEasing) 全程减速
+        5. 自定义 easing TweenSpec(easing = Easing { 0.3f })
+            1. Easing 接口 参数是动画的实际完成度
+            2. it 参数传递 it 表示动画完成度与时间完成度一致，即是线性动画
+            3. 传递 0.3f 表示动画时间结束后,动画完成度为 0.3
+    4. SnapSpec 动画效果是突变的 延时功能，下面为延时 1 秒后开始执行动画
+       ```kotlin
+        anim.animateTo(size, SnapSpec(1000))
+       ```
+    5. KeyframesSpec
+        1. 关键帧动画
+        2. 在哪个时间点 动画执行到哪个位置
+        3. 下面示例为 50毫秒动画执行到 50dp
+        4. durationMillis 设置动画执行时间,单位 毫秒
+        5. delayMillis 设置动画延时执行时间 单位毫秒
+        6. 设置关键帧的速度曲线 48.dp at 0 with FastOutSlowInEasing 作用于后面那段时间的速度曲线，见代码注释
+        7. 不写默认的速度曲线为 LinearEasing
+       ```kotlin
+        anim.animateTo(size, keyframes {
+            //设置动画执行时间,单位 毫秒
+            durationMillis = 450
+            //设置动画延时执行时间 单位毫秒
+            delayMillis = 1000
+            //1. 设置关键帧
+            //2. 设置速度曲线 with FastOutSlowInEasing 作用于后面那段时间
+            48.dp at 0 with FastOutSlowInEasing//初始时的速度曲线 作用于 0-150 毫秒的速度曲线
+            140.dp at 150 with FastOutSlowInEasing//作用于 150-200 毫秒的速度曲线
+            80.dp at 200 with LinearOutSlowInEasing//作用于 200- 450 毫秒的速度曲线
+            96.dp at 450 with LinearEasing//不写默认的速度曲线
+        })
+       ```
+        
