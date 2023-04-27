@@ -164,7 +164,7 @@ compose 函数传参数就是 无状态的，因为状态在外部，不传参�
     }
    ```
 
-# deviderStateOf()
+# derivedStateOf()
 
 1. 某一个状态依赖另一个状态使用此函数
 2. 与 remember(Key) 带参数函数区别
@@ -301,4 +301,47 @@ compose 函数传参数就是 无状态的，因为状态在外部，不传参�
         anim.animateTo(size, epeatable(3, tween(), RepeatMode.Reverse, StartOffset(1000, StartOffsetType.FastForward)))
         anim.animateTo(infiniteRepeatable( tween(), RepeatMode.Reverse, StartOffset(1000, StartOffsetType.FastForward)))
         ```
-       
+    8. AnimateDecay 惯性衰减
+        1. initialVelocity: T, 初始速度 单位与 Animatable 创建时的单位保持一致
+        2. animationSpec: DecayAnimationSpec<T>,
+            1. splineBasedDecay<>() //只能使用像素 不使用这个，使用 rememberSplineBasedDecay
+            2. exponentialDecay<>() 指数衰减 单位是 Dp
+                1. 两个参数
+                    1. frictionMultiplier: Float = 1f, 摩擦系数，越大摩擦力越大，滑动距离越小
+                    2. absVelocityThreshold: Float = 0.1f 速度阈值的绝对值
+            3. rememberSplineBasedDecay() 单位是像素，如果是 Dp 要转换成 px
+        3. block: (Animatable<T, V>.() -> Unit)? = null 每一帧的回调
+        ```kotlin
+          @Composable
+          fun TestAnimatableDecay() {
+              val anim = remember { Animatable(0.dp, Dp.VectorConverter) }
+              var padding2 by remember { mutableStateOf(anim.value) }
+              // val decay = rememberSplineBasedDecay<Dp>()//操作像素，Dp 是不对的
+              val decay = remember { exponentialDecay<Dp>(4f) }
+              LaunchedEffect(Unit) {
+                 delay(2000)
+                 anim.animateDecay(1000.dp, decay){
+                     //block 每一帧的回调
+                     padding2 = value
+                 }
+              }
+
+              Box(
+                 modifier = Modifier
+                 .padding(0.dp, anim.value, 0.dp, 0.dp)
+                 .size(100.dp)
+                 .background(Color.Blue)
+              )              
+              Box(
+                 modifier = Modifier
+                 .padding(0.dp, padding2, 0.dp, 0.dp)
+                 .size(100.dp)
+                 .background(Color.Blue)
+              )
+          }
+       ```
+
+# Modifier.composed() 和 ComposedModifier
+
+1. 作用
+    1. 需要调用 composed 函数的时候给自定义的 Modifier 包一层 composed ,意为提供了上下文环境

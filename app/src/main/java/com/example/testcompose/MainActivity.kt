@@ -38,8 +38,14 @@ import com.example.testcompose.ui.TestMutableStateMapOf
 import com.example.testcompose.ui.TestSpan
 import com.example.testcompose.ui.TestTextField
 import com.example.testcompose.ui.animate.TestAnimatable
+import com.example.testcompose.ui.animate.TestAnimatableDecay
 import com.example.testcompose.ui.animate.TestAnimateDpAsState
+import com.example.testcompose.ui.animate.TestAnimatedContent
+import com.example.testcompose.ui.animate.TestAnimetedVisibility
 import com.example.testcompose.ui.animate.TestAnimtable2
+import com.example.testcompose.ui.animate.TestCrossface
+import com.example.testcompose.ui.animate.TestTransition
+import com.example.testcompose.ui.animate.TestTransition2
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -48,16 +54,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val scrollState = rememberScrollState(0)
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            ) {
+            BoxWithConstraints() {
+                val scrollState = rememberScrollState(0)
 
-                /**
-                 * Image
-                 */
+                CompositionLocalProvider(LocalWidth provides maxWidth) {
+//                    TestAnimatableDecay()//界面显示 "whl"
+                }
+                println("whl ** 高 = ${maxHeight}")
+
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
+                    /**
+                     * Image
+                     */
 //                //Image 显示本地图片 使用 painterResource(id)
 //                Image(painterResource(drawable.ic_launcher_background), "Icon")
 //                //Image 显示网络图片使用 coil 库 加载图片
@@ -66,30 +78,30 @@ class MainActivity : ComponentActivity() {
 //                    contentDescription = "Icon",
 //                )
 
-                /**
-                 *  Text 和其 span
-                 */
+                    /**
+                     *  Text 和其 span
+                     */
 //                Greeting("Android")
 //                TestSpan(ctx = this@MainActivity)
 
-                /**
-                 *  Column
-                 */
+                    /**
+                     *  Column
+                     */
 //                TestColumn()
 
-                /**
-                 * Button
-                 */
+                    /**
+                     * Button
+                     */
 //                TestButton()
 
-                /**
-                 * TextField
-                 */
+                    /**
+                     * TextField
+                     */
 //                TestTextField()
 
-                /**
-                 * mutableStateOf 正确用法，使用 remember
-                 */
+                    /**
+                     * mutableStateOf 正确用法，使用 remember
+                     */
 //                var name by remember { mutableStateOf("whl") }
 //                Text(name)
 //
@@ -98,9 +110,9 @@ class MainActivity : ComponentActivity() {
 //                    name = "王海龙"
 //                }
 
-                /**
-                 * remember  mutablestateXxxOf
-                 */
+                    /**
+                     * remember  mutablestateXxxOf
+                     */
 //                ShowMsg(value = "1234")//Text 显示 4
 //                ShowMsg(value = "12345")//Text 显示 5
 //                ShowMsg(value = "123456")//Text 显示 6
@@ -108,9 +120,9 @@ class MainActivity : ComponentActivity() {
 //                TestMutableStateListOf()
 //                TestMutableStateMapOf()
 
-                /**
-                 * DerivedStateOf
-                 */
+                    /**
+                     * DerivedStateOf
+                     */
 //                TestDerivedStateOf()
 //                TestDerivedStateOf2()
 //                TestDerivedStateOf3()
@@ -121,19 +133,29 @@ class MainActivity : ComponentActivity() {
 //                TestDerivedStateOf4(names = names) {
 //                    names.add("java")
 //                }
-//
+
+                    /**
+                     * CompositionLocal
+                     */
 //                TestCompositionLocal()//界面显示 "默认"
 //                CompositionLocalProvider(LocalName provides "whl") {
 //                    TestCompositionLocal()//界面显示 "whl"
 //                }
 
-                /**
-                 * 动画
-                 */
-                TestAnimateDpAsState()
-                TestAnimatable()
-                TestAnimtable2()
+                    /**
+                     * 动画
+                     */
+//                TestAnimateDpAsState()
+//                TestAnimatable()
+//                TestAnimtable2()
+//                TestAnimatableDecay()
+//                TestTransition()
+//                TestTransition2()
+//                    TestAnimetedVisibility()
+//                    TestCrossface()
+                    TestAnimatedContent()
 
+                }
             }
         }
     }
@@ -175,3 +197,4 @@ class User(name: String) {
 }
 
 val LocalName = compositionLocalOf { "默认" }
+val LocalWidth = compositionLocalOf { 0.dp }
